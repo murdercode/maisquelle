@@ -1,49 +1,25 @@
-# MaisQuelle
+# MaisQuelle 🌽
 
-MaisQuelle is a comprehensive Python-based monitoring tool for MySQL servers and system resources. The name combines "MySQL" with "Quelle", reflecting its purpose as a detailed source of MySQL and system performance insights.
+Your AI-Powered MySQL configurator companion! 🤖✨
 
-## Features
+**MaisQuelle** (_**M**ySQL **A**rtificial **I**ntelligence **S**ystem for **Q**uerying, **U**nderstanding, **E**valuating, **L**earning and **L**og **E**nhancement_
+) is a smart configurator and performance monitoring tool that combines the power of artificial intelligence with traditional monitoring techniques to keep your MySQL servers happy and healthy! 🎯
 
-- **System Resource Monitoring**
-  - CPU usage and frequency
-  - RAM and swap memory utilization
-  - Disk space and usage statistics
+> ⚠️ WARNING: MaisQuelle is currently in an experimental phase and is NOT ready for production use!
 
-- **MySQL Server Monitoring**
-  - Connection metrics and statistics
-  - Query performance analysis
-  - Buffer and cache utilization
-  - InnoDB metrics
-  - Process list monitoring
-  - Slow query analysis
-  - Performance schema metrics
+## Why MaisQuelle? 🤔
 
-- **Query Cache Analysis**
-  - Cache hit ratio
-  - Memory usage analysis
-  - Fragmentation detection
-  - Performance recommendations
-
-- **Table Statistics**
-  - Size and row counts
-  - Index analysis
-  - Storage engine details
-  - Space utilization
-
-- **Advanced InnoDB Metrics**
-  - Buffer pool statistics
-  - I/O operations
-  - Transaction monitoring
-
-- **Performance Schema Integration**
-  - Top queries by execution time
-  - Lock analysis
-  - Resource utilization patterns
+- 🧠 AI-Enhanced Analysis: Uses machine learning algorithms to provide intelligent insights and recommendations for your MySQL performance
+- 📊 Smart Reporting: Automatically generates human-readable reports with AI-driven explanations
+- 🎯 Predictive Monitoring: Identifies potential issues before they become problems
+- 🚀 Performance Optimization: Provides AI-powered suggestions for query optimization and system tuning
+- 🤖 Self-Learning: Continuously improves its recommendations based on your system's specific patterns
 
 ## Requirements
 
 - Python 3.6+
 - MySQL Server 5.7+ or MariaDB 10.2+
+- Anthropic API Key (for AI-enhanced features)
 - Required Python packages:
   ```
   psutil
@@ -71,7 +47,7 @@ MaisQuelle is a comprehensive Python-based monitoring tool for MySQL servers and
 Run the script with default settings:
 
 ```bash
-python monitor.py
+python maisquelle.py
 ```
 
 ### Advanced Usage
@@ -79,7 +55,7 @@ python monitor.py
 The script supports various command-line arguments:
 
 ```bash
-python monitor.py --host localhost --user root --password mypassword --port 3307 --enable-tables
+python maisquelle.py --host localhost --user root --password mypassword --port 3307 --enable-tables
 ```
 
 ### Available Arguments
@@ -200,5 +176,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Author
 
 Your Name
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
+- GitHub: [@murdercode](https://github.com/murdercode)
+- Email: murdercode@gmail.com
