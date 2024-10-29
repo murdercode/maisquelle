@@ -1,0 +1,57 @@
+# MySQL Monitor Configuration File
+
+# Anthropic API Configuration
+anthropic:
+  api_key: ""  # Replace with your actual Anthropic API key
+  model: "claude-3-sonnet-20240229"  # Default model
+  max_tokens: 4096  # Maximum tokens per request
+  temperature: 0.7  # Response creativity (0.0-1.0)
+
+# Logging Configuration
+logging:
+  directory: "logs"  # Directory for log files
+  max_files: 10  # Maximum number of log files to keep
+  rotation_size: "10MB"  # Size at which to rotate logs
+  format: "json"  # Log format (json/text)
+  retention_days: 30  # Days to keep logs before deletion
+
+# MySQL Monitor Settings
+mysql:
+  host: "localhost"
+  port: 3307
+  user: "root"
+  password: ""  # Replace with your actual password
+  connection_timeout: 10  # Seconds to wait for connection
+  retry_attempts: 3  # Number of connection retry attempts
+
+# Monitoring Configuration
+monitoring:
+  interval: 300  # Monitoring interval in seconds
+  enabled_checks: # Checks to perform
+    - performance
+    - connections
+    - replication
+    - innodb
+    - queries
+    - resources
+  thresholds:
+    cpu_usage: 80  # Percentage
+    memory_usage: 85  # Percentage
+    disk_usage: 90  # Percentage
+    slow_queries: 10  # Per minute
+    connection_usage: 80  # Percentage of max_connections
+
+# Export Configuration
+export:
+  enabled: true
+  formats:
+    - json
+    - csv
+  destination: "exports"
+  schedule: "0 0 * * *"  # Daily at midnight (cron format)
+
+# Development Settings
+development:
+  debug: false
+  verbose_logging: false
+  test_mode: false
