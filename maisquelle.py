@@ -55,12 +55,21 @@ class SystemMySQLMonitor:
 
         try:
             settings_path = Path("settings.yaml")
+            example_settings_path = Path("settings.example.yaml")
+
+            # Se settings.yaml non esiste ma esiste l'example
+            if not settings_path.exists() and example_settings_path.exists():
+                print(f"{Fore.YELLOW}[!] settings.yaml non trovato, copio da settings.example.yaml{Style.RESET_ALL}")
+                # Copia il file example in settings.yaml
+                settings_path.write_text(example_settings_path.read_text())
+
             if not settings_path.exists():
                 return {}
 
             with open(settings_path, "r") as f:
                 return yaml.safe_load(f)
-        except Exception:
+        except Exception as e:
+            print(f"{Fore.RED}[✗] Errore nel caricamento delle impostazioni: {str(e)}{Style.RESET_ALL}")
             return {}
 
     def _get_api_key(self):
