@@ -22,30 +22,25 @@ init()
 
 
 class SystemMySQLMonitor:
-    def __init__(self, host="localhost", user="root", password="", port=3307):
+    def __init__(self, host=None, user=None, password=None, port=None):
         self.settings = self._load_settings()
         self.api_key = self._get_api_key()
 
+        # Get MySQL settings from yaml with defaults
+        mysql_settings = self.settings.get('mysql', {})
+
         self.mysql_config = {
-            "host": host,
-            "user": user,
-            "password": password,
-            "port": port,
+            "host": host or mysql_settings.get('host', 'localhost'),
+            "user": user or mysql_settings.get('user', 'root'),
+            "password": password or mysql_settings.get('password', ''),
+            "port": port or mysql_settings.get('port', 3306)
         }
 
         self.system_monitor = SystemMonitor()
-        self.mysql_monitor = MySQLMonitor(
-            host=host, user=user, password=password, port=port
-        )
-        self.query_analyzer = QueryAnalyzer(
-            host=host, user=user, password=password, port=port
-        )
-        self.table_statistics = TableStatistics(
-            host=host, user=user, password=password, port=port
-        )
-        self.performance_monitor = PerformanceMonitor(
-            host=host, user=user, password=password, port=port
-        )
+        self.mysql_monitor = MySQLMonitor(**self.mysql_config)
+        self.query_analyzer = QueryAnalyzer(**self.mysql_config)
+        self.table_statistics = TableStatistics(**self.mysql_config)
+        self.performance_monitor = PerformanceMonitor(**self.mysql_config)
         self.report_handler = ReportHandler()
 
     def _load_settings(self):
@@ -169,25 +164,38 @@ def get_size(bytes):
         bytes /= 1024
 
 
-def parse_arguments():
-    """Handle command line arguments"""
+def parse_arguments(settings=None):
+    """Handle command line arguments with fallback to settings.yaml"""
     parser = argparse.ArgumentParser(description="System and MySQL Monitor")
+
+    # Get MySQL settings from yaml with defaults
+    mysql_settings = settings.get('mysql', {}) if settings else {}
+
     parser.add_argument(
-        "--host", default="localhost", help="MySQL Host (default: localhost)"
+        "--host",
+        default=mysql_settings.get('host', 'localhost'),
+        help=f"MySQL Host (default: {mysql_settings.get('host', 'localhost')})"
     )
     parser.add_argument(
-        "-u", "--user", default="root", help="MySQL Username (default: root)"
+        "-u", "--user",
+        default=mysql_settings.get('user', 'root'),
+        help=f"MySQL Username (default: {mysql_settings.get('user', 'root')})"
     )
     parser.add_argument(
-        "-p", "--password", default="", help="MySQL Password (default: empty)"
+        "-p", "--password",
+        default=mysql_settings.get('password', ''),
+        help="MySQL Password (default: from settings.yaml or empty)"
     )
     parser.add_argument(
-        "--port", type=int, default=3307, help="MySQL Port (default: 3307)"
+        "--port",
+        type=int,
+        default=mysql_settings.get('port', 3306),
+        help=f"MySQL Port (default: {mysql_settings.get('port', 3306)})"
     )
     parser.add_argument(
         "--enable-tables",
         action="store_true",
-        help="Enable collection of table statistics",
+        help="Enable collection of table statistics"
     )
 
     return parser.parse_args()
@@ -195,18 +203,22 @@ def parse_arguments():
 
 def main():
     try:
-        args = parse_arguments()
+        # Prima carica le impostazioni
+        monitor = SystemMySQLMonitor()
 
-        print(
-            f"\n{Fore.CYAN}[*] Starting System and MySQL monitoring...{Style.RESET_ALL}"
-        )
-        print(
-            f"{Fore.CYAN}[*] MySQL Connection: {args.host}:{args.port} with user {args.user}{Style.RESET_ALL}\n"
-        )
+        # Passa le impostazioni al parser degli argomenti
+        args = parse_arguments(monitor.settings)
 
-        monitor = SystemMySQLMonitor(
-            host=args.host, user=args.user, password=args.password, port=args.port
-        )
+        print(f"\n{Fore.CYAN}[*] Starting System and MySQL monitoring...{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[*] MySQL Connection: {args.host}:{args.port} with user {args.user}{Style.RESET_ALL}\n")
+
+        # Aggiorna il monitor con i parametri finali (combinazione di settings.yaml e argomenti CLI)
+        monitor.mysql_config.update({
+            "host": args.host,
+            "user": args.user,
+            "password": args.password,
+            "port": args.port,
+        })
 
         filename = monitor.generate_report(enable_tables=args.enable_tables)
         print(f"\n{Fore.GREEN}[✓] Report saved to: {filename}{Style.RESET_ALL}")
