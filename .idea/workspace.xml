@@ -4,28 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d274ce2d-8187-434b-8e66-08ba32a823b1" name="Changes" comment="A new fancy README.md">
-      <change afterPath="$PROJECT_DIR$/config/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/.gitkeep" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/config/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/config/cli.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/config/settings.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/monitor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/monitor/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/monitor/mysql_monitor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/monitor/performance_monitor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/monitor/query_analyzer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/monitor/system_monitor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/monitor/table_statistics.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/converter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/formatter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/logger.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/report_handler.py" afterDir="false" />
+    <list default="true" id="d274ce2d-8187-434b-8e66-08ba32a823b1" name="Changes" comment="Refactor">
+      <change afterPath="$PROJECT_DIR$/settings.example.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/settings.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/maisquelle.py" beforeDir="false" afterPath="$PROJECT_DIR$/maisquelle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/cli.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/settings.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +66,11 @@
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/src/monitor" />
     </key>
   </component>
@@ -138,7 +130,15 @@
       <option name="project" value="LOCAL" />
       <updated>1730207529971</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Refactor">
+      <option name="closed" value="true" />
+      <created>1730218872576</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1730218872576</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -146,6 +146,7 @@
     <MESSAGE value="wip" />
     <MESSAGE value="remove idea" />
     <MESSAGE value="A new fancy README.md" />
-    <option name="LAST_COMMIT_MESSAGE" value="A new fancy README.md" />
+    <MESSAGE value="Refactor" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor" />
   </component>
 </project>
