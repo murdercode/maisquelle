@@ -52,10 +52,10 @@ class SystemMySQLMonitor:
             settings_path = Path("settings.yaml")
             example_settings_path = Path("settings.example.yaml")
 
-            # Se settings.yaml non esiste ma esiste l'example
+            # If settings.yaml doesn't exist but example does
             if not settings_path.exists() and example_settings_path.exists():
-                print(f"{Fore.YELLOW}[!] settings.yaml non trovato, copio da settings.example.yaml{Style.RESET_ALL}")
-                # Copia il file example in settings.yaml
+                print(f"{Fore.YELLOW}[!] settings.yaml not found, copying from settings.example.yaml{Style.RESET_ALL}")
+                # Copy example file to settings.yaml
                 settings_path.write_text(example_settings_path.read_text())
 
             if not settings_path.exists():
@@ -64,7 +64,7 @@ class SystemMySQLMonitor:
             with open(settings_path, "r") as f:
                 return yaml.safe_load(f)
         except Exception as e:
-            print(f"{Fore.RED}[✗] Errore nel caricamento delle impostazioni: {str(e)}{Style.RESET_ALL}")
+            print(f"{Fore.RED}[✗] Error loading settings: {str(e)}{Style.RESET_ALL}")
             return {}
 
     def _get_api_key(self):
@@ -83,22 +83,27 @@ class SystemMySQLMonitor:
             return None
 
         try:
-            # This is where you would implement the AI analysis
-            # Example structure for future implementation:
-            """
-            anthropic_client = AnthropicClient(api_key=self.api_key)
+            from src.ai.anthropic import AnthropicHandler
 
-            prompt = {
-                "system_metrics": monitoring_data["system_resources"],
-                "mysql_stats": monitoring_data["mysql_stats"],
-                "performance_metrics": monitoring_data["performance_schema_metrics"],
-                "query_stats": monitoring_data["query_cache_report"]
-            }
+            ai_handler = AnthropicHandler(api_key=self.api_key)
 
-            optimization_tips = anthropic_client.analyze_metrics(prompt)
-            return optimization_tips
-            """
-            pass
+            # Analyze the monitoring data
+            suggested_commands = ai_handler.analyze_report(monitoring_data)
+
+            if suggested_commands:
+                # Process commands interactively
+                approved_commands = ai_handler.process_commands_interactively(suggested_commands)
+
+                # Execute approved commands
+                ai_handler.execute_approved_commands(approved_commands)
+
+                return {
+                    "suggested_commands": suggested_commands,
+                    "approved_commands": approved_commands
+                }
+
+            return None
+
         except Exception as e:
             print(
                 f"{Fore.RED}[✗] Cannot get an AI report, please check your API key: {str(e)}{Style.RESET_ALL}"
@@ -203,16 +208,13 @@ def parse_arguments(settings=None):
 
 def main():
     try:
-        # Prima carica le impostazioni
         monitor = SystemMySQLMonitor()
 
-        # Passa le impostazioni al parser degli argomenti
         args = parse_arguments(monitor.settings)
 
         print(f"\n{Fore.CYAN}[*] Starting System and MySQL monitoring...{Style.RESET_ALL}")
         print(f"{Fore.CYAN}[*] MySQL Connection: {args.host}:{args.port} with user {args.user}{Style.RESET_ALL}\n")
 
-        # Aggiorna il monitor con i parametri finali (combinazione di settings.yaml e argomenti CLI)
         monitor.mysql_config.update({
             "host": args.host,
             "user": args.user,
