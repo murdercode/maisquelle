@@ -1,15 +1,16 @@
-# MaisQuelle 🌽
+# MaisQuelle 🌽 Your AI-Powered MySQL companion
 
-Your AI-Powered MySQL configurator companion! 🤖✨
-
-**MaisQuelle** (_**M**ySQL **A**rtificial **I**ntelligence **S**ystem for **Q**uerying, **U**nderstanding, **E**valuating, **L**earning and **L**og **E**nhancement_
-) is a smart configurator and performance monitoring tool that combines the power of artificial intelligence with traditional monitoring techniques to keep your MySQL servers happy and healthy! 🎯
+**MaisQuelle** (_**M**ySQL **A**rtificial **I**ntelligence **S**ystem for **Q**uerying, **U**nderstanding, **E**
+valuating, **L**earning and **L**og **E**nhancement_) is a smart configurator and performance monitoring tool that
+combines the power of artificial intelligence with traditional monitoring techniques to keep your MySQL servers happy
+and healthy! 🎯
 
 > ⚠️ WARNING: MaisQuelle is currently in an experimental phase and is NOT ready for production use!
 
 ## Why MaisQuelle? 🤔
 
-- 🧠 AI-Enhanced Analysis: Uses machine learning algorithms to provide intelligent insights and recommendations for your MySQL performance
+- 🧠 AI-Enhanced Analysis: Uses machine learning algorithms to provide intelligent insights and recommendations for your
+  MySQL performance
 - 📊 Smart Reporting: Automatically generates human-readable reports with AI-driven explanations
 - 🎯 Predictive Monitoring: Identifies potential issues before they become problems
 - 🚀 Performance Optimization: Provides AI-powered suggestions for query optimization and system tuning
@@ -19,19 +20,13 @@ Your AI-Powered MySQL configurator companion! 🤖✨
 
 - Python 3.6+
 - MySQL Server 5.7+ or MariaDB 10.2+
-- Anthropic API Key (for AI-enhanced features)
-- Required Python packages:
-  ```
-  psutil
-  mysql-connector-python
-  colorama
-  ```
+- [Anthropic API Key](https://www.anthropic.com/) (for AI-enhanced features)
 
 ## Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/maisquelle.git
+   git clone https://github.com/murdercode/mais-quelle.git
    cd maisquelle
    ```
 
@@ -40,22 +35,31 @@ Your AI-Powered MySQL configurator companion! 🤖✨
    pip install -r requirements.txt
    ```
 
-## Usage
+3. Configure settings:
+    - Copy `settings.example.yaml` to `settings.yaml`
+    - Add your Anthropic API key and MySQL configuration in `settings.yaml`
 
-### Basic Usage
+## Configuration
 
-Run the script with default settings:
+MaisQuelle can be configured in two ways:
 
-```bash
-python maisquelle.py
+1. Using `settings.yaml`:
+
+```yaml
+mysql:
+  host: localhost
+  user: root
+  password: ""
+  port: 3306
+
+anthropic:
+  api_key: "your-api-key-here"
 ```
 
-### Advanced Usage
-
-The script supports various command-line arguments:
+2. Using command-line arguments (these override settings.yaml):
 
 ```bash
-python maisquelle.py --host localhost --user root --password mypassword --port 3307 --enable-tables
+python maisquelle.py --host localhost --user root --password mypassword --port 3306 --enable-tables
 ```
 
 ### Available Arguments
@@ -63,97 +67,105 @@ python maisquelle.py --host localhost --user root --password mypassword --port 3
 - `--host`: MySQL host address (default: localhost)
 - `-u, --user`: MySQL username (default: root)
 - `-p, --password`: MySQL password (default: empty)
-- `--port`: MySQL port number (default: 3307)
+- `--port`: MySQL port number (default: 3306)
 - `--enable-tables`: Enable detailed table statistics collection
+
+## Features
+
+### System Monitoring
+
+- CPU utilization and specifications
+- Memory usage (RAM and swap)
+- Disk space statistics
+
+### MySQL Monitoring
+
+- Service status and processes
+- Server variables and status
+- Query cache analysis
+- InnoDB metrics
+- Slow query analysis
+- Performance schema metrics
+- Table statistics (optional)
+
+### AI-Enhanced Features
+
+- Performance optimization recommendations
+- Query analysis
+- Interactive command suggestions
+- Automated improvement execution
 
 ## Output
 
-MaisQuelle generates comprehensive reports in the `logs` directory with the following naming convention:
+Reports are generated in the `logs` directory with timestamps:
+
 ```
 logs/status_YYYYMMDD_HHMMSS.txt
 ```
 
 ### Report Sections
 
-1. **System Metrics**
-   - CPU utilization and specifications
-   - Memory usage (RAM and swap)
-   - Disk space statistics
+1. **MySQL Configuration**
+    - Connection settings
+    - Server configuration
 
-2. **MySQL Configuration**
-   - Current connection settings
-   - Server variables
-   - Process information
+2. **System Resources**
+    - CPU metrics
+    - Memory usage
+    - Disk statistics
 
-3. **Performance Metrics**
-   - Query statistics
-   - Cache performance
-   - Buffer utilization
-   - InnoDB metrics
+3. **MySQL Status**
+    - Process information
+    - Service status
+    - Server variables
 
-4. **Query Analysis**
-   - Slow query details
-   - Query cache statistics
-   - Performance recommendations
+4. **Performance Metrics**
+    - Query cache analysis
+    - InnoDB metrics
+    - Slow queries
+    - Performance schema data
+    - Table statistics (if enabled)
 
-## Example Report Output
-
-```
-=== SYSTEM AND MYSQL STATUS REPORT ===
-Timestamp: 2024-10-29 14:30:00
-
-=== MYSQL CONFIGURATION ===
-host: localhost
-port: 3307
-user: root
-
-=== SYSTEM METRICS ===
-[CPU]
-total_usage_percent: 45.2
-core_count: 8
-current_frequency_mhz: 2800.00
-...
-```
-
-## Configuration
-
-MaisQuelle uses default MySQL configuration but can be customized using command-line arguments. For persistent configuration, you can modify the default values in the `SystemMySQLMonitor` class initialization.
+5. **AI Optimization** (when API key is configured)
+    - Suggested improvements
+    - Approved commands
+    - Execution results
 
 ## Best Practices
 
-1. **Regular Monitoring**
-   - Schedule regular monitoring intervals
-   - Keep historical reports for trend analysis
-   - Monitor during peak and off-peak hours
+1. **Configuration**
+    - Use `settings.yaml` for persistent configuration
+    - Set up a dedicated monitoring user
+    - Configure appropriate permissions
 
-2. **Performance Impact**
-   - Use `--enable-tables` sparingly on production servers
-   - Monitor the monitoring tool's own resource usage
-   - Consider network impact for remote monitoring
+2. **Monitoring**
+    - Use `--enable-tables` sparingly on production servers
+    - Monitor during various load conditions
+    - Keep historical reports for trend analysis
 
 3. **Security**
-   - Use dedicated monitoring user accounts
-   - Implement proper password management
-   - Restrict monitoring user privileges
+    - Store API keys securely
+    - Use encrypted connections
+    - Regularly rotate credentials
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Connection Errors**
-   - Verify MySQL server is running
-   - Check credentials and permissions
-   - Confirm correct port configuration
+1. **Settings Loading**
+    - Ensure `settings.yaml` exists
+    - Check YAML syntax
+    - Verify file permissions
 
-2. **Performance Impact**
-   - Reduce monitoring frequency
-   - Disable detailed table statistics
-   - Optimize query cache analysis
+2. **MySQL Connection**
+    - Confirm MySQL server is running
+    - Verify credentials
+    - Check port availability
 
-3. **Report Generation Issues**
-   - Check disk space for logs
-   - Verify write permissions
-   - Monitor log file growth
+3. **AI Features**
+    - Validate Anthropic API key
+    - Check internet connectivity
+    - Monitor API rate limits
 
 ## Contributing
 
@@ -167,14 +179,9 @@ MaisQuelle uses default MySQL configuration but can be customized using command-
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgments
-
-- Built with Python's psutil and mysql-connector libraries
-- Inspired by various MySQL monitoring tools
-- Thanks to all contributors and testers
-
 ## Author
 
 Your Name
+
 - GitHub: [@murdercode](https://github.com/murdercode)
 - Email: murdercode@gmail.com
