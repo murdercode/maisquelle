@@ -1,5 +1,7 @@
 import argparse
+from pathlib import Path
 
+import yaml
 from colorama import init, Fore, Style
 
 from src.monitor.mysql_monitor import MySQLMonitor
@@ -13,8 +15,16 @@ from src.utils.report_handler import ReportHandler
 init()
 
 
+class ConfigurationError(Exception):
+    """Custom exception for configuration errors"""
+    pass
+
+
 class SystemMySQLMonitor:
     def __init__(self, host='localhost', user='root', password='', port=3307):
+        self.settings = self._load_settings()
+        self._validate_api_key()
+
         self.mysql_config = {
             'host': host,
             'user': user,
@@ -28,6 +38,32 @@ class SystemMySQLMonitor:
         self.table_statistics = TableStatistics(host=host, user=user, password=password, port=port)
         self.performance_monitor = PerformanceMonitor(host=host, user=user, password=password, port=port)
         self.report_handler = ReportHandler()
+
+    def _load_settings(self):
+        """Load settings from settings.yaml file"""
+        try:
+            settings_path = Path("settings.yaml")
+            if not settings_path.exists():
+                raise ConfigurationError("Settings file (settings.yaml) not found")
+
+            with open(settings_path, 'r') as f:
+                return yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            raise ConfigurationError(f"Error parsing settings.yaml: {str(e)}")
+        except Exception as e:
+            raise ConfigurationError(f"Error loading settings: {str(e)}")
+
+    def _validate_api_key(self):
+        """Validate the Anthropic API key from settings"""
+        try:
+            api_key = self.settings.get('anthropic', {}).get('api_key')
+            if not api_key:
+                raise ConfigurationError(
+                    "Anthropic API key not found in settings.yaml. "
+                    "Please add your API key under anthropic.api_key"
+                )
+        except AttributeError:
+            raise ConfigurationError("Invalid settings format: 'anthropic' section not found")
 
     def collect_monitoring_data(self, enable_tables=False):
         """Collect all monitoring data and return as a structured dictionary"""
@@ -103,12 +139,18 @@ def main():
         print(f"\n{Fore.CYAN}[*] Starting System and MySQL monitoring...{Style.RESET_ALL}")
         print(f"{Fore.CYAN}[*] MySQL Connection: {args.host}:{args.port} with user {args.user}{Style.RESET_ALL}\n")
 
-        monitor = SystemMySQLMonitor(
-            host=args.host,
-            user=args.user,
-            password=args.password,
-            port=args.port
-        )
+        try:
+            monitor = SystemMySQLMonitor(
+                host=args.host,
+                user=args.user,
+                password=args.password,
+                port=args.port
+            )
+        except ConfigurationError as e:
+            print(f"{Fore.RED}[✗] Configuration Error: {str(e)}{Style.RESET_ALL}")
+            print(
+                f"{Fore.YELLOW}[!] Please check your settings.yaml file and ensure all required configurations are present.{Style.RESET_ALL}")
+            return
 
         filename = monitor.generate_report(enable_tables=args.enable_tables)
         print(f"\n{Fore.GREEN}[✓] Report saved to: {filename}{Style.RESET_ALL}")
