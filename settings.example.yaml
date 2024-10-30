@@ -26,6 +26,7 @@ mysql:
 
 # Monitoring Configuration
 monitoring:
+  level: 2 # 1 - Basic, 2 - Advanced (default), 3 - Expert
   interval: 300  # Monitoring interval in seconds
   enabled_checks: # Checks to perform
     - performance

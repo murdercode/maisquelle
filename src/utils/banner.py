@@ -1,5 +1,3 @@
-# src/utils/banner.py
-
 import sys
 import time
 
@@ -29,22 +27,25 @@ def print_header():
 ║ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚══════╝ ╚══▀▀═╝  ╚═════╝ ╚══════╝╚══════╝╚══════╝╚══════╝ ║
 ╚══════════════════════════════════════════════════════════════════════════════╝{Style.RESET_ALL}"""
 
-    tagline = f"\n{Fore.CYAN}                MySQL Performance Monitor & Optimization Tool{Style.RESET_ALL}\n"
+    subtitle = f"""{Fore.CYAN}
+MySQL {Fore.WHITE}A{Fore.CYAN}rtificial {Fore.WHITE}I{Fore.CYAN}ntelligence {Fore.WHITE}S{Fore.CYAN}ystem for
+{Fore.WHITE}Q{Fore.CYAN}uerying, {Fore.WHITE}U{Fore.CYAN}nderstanding, {Fore.WHITE}E{Fore.CYAN}valuating,
+{Fore.WHITE}L{Fore.CYAN}earning and {Fore.WHITE}L{Fore.CYAN}og {Fore.WHITE}E{Fore.CYAN}nhancement{Style.RESET_ALL}"""
 
-    # Clear any previous output (optional)
+    # Clear any previous output
     print("\033[H\033[J", end="")
 
     # Print header with typing animation
     type_text(header)
 
-    # Print tagline with slightly slower typing effect
-    type_text(tagline, delay=0.01)
+    # Print subtitle with medium typing effect
+    type_text(subtitle, delay=0.005)
 
     # Add a small pause at the end
     time.sleep(0.5)
 
-    # Optional separator after the banner
-    print(f"{Fore.YELLOW}{'═' * 78}{Style.RESET_ALL}\n")
+    # Separator after the banner
+    print(f"\n{Fore.YELLOW}{'═' * 78}{Style.RESET_ALL}\n")
 
 
 def clear_screen():

@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 from pathlib import Path
 
 from colorama import init, Fore, Style
@@ -29,6 +30,9 @@ class SystemMySQLMonitor:
 
         # Get MySQL settings from yaml with defaults
         mysql_settings = self.settings.get("mysql", {})
+        monitoring_settings = self.settings.get("monitoring", {})
+
+        self.monitoring_level = monitoring_settings.get("level", 2)
 
         self.mysql_config = {
             "host": host or mysql_settings.get("host", "localhost"),
@@ -37,11 +41,29 @@ class SystemMySQLMonitor:
             "port": port or mysql_settings.get("port", 3306),
         }
 
+        # Initialize AI handler early
+        if self.api_key:
+            try:
+                from src.ai.anthropic import AnthropicHandler
+
+                self.ai_handler = AnthropicHandler(api_key=self.api_key)
+            except Exception as e:
+                print(
+                    f"{Fore.YELLOW}[!] Warning: Could not initialize AI handler: {str(e)}{Style.RESET_ALL}"
+                )
+                self.ai_handler = None
+        else:
+            print(
+                f"{Fore.YELLOW}[!] Warning: No Anthropic API key found in settings.{Style.RESET_ALL}"
+            )
+            self.ai_handler = None
+
+        # Initialize monitors based on level
         self.system_monitor = SystemMonitor()
         self.mysql_monitor = MySQLMonitor(**self.mysql_config)
         self.query_analyzer = QueryAnalyzer(**self.mysql_config)
-        self.table_statistics = TableStatistics(**self.mysql_config)
         self.performance_monitor = PerformanceMonitor(**self.mysql_config)
+        self.table_statistics = TableStatistics(**self.mysql_config)
         self.report_handler = ReportHandler()
 
     def _load_settings(self):
@@ -58,7 +80,6 @@ class SystemMySQLMonitor:
                 print(
                     f"{Fore.YELLOW}[!] settings.yaml not found, copying from settings.example.yaml{Style.RESET_ALL}"
                 )
-                # Copy example file to settings.yaml
                 settings_path.write_text(example_settings_path.read_text())
 
             if not settings_path.exists():
@@ -74,64 +95,48 @@ class SystemMySQLMonitor:
         """Get Anthropic API key from settings"""
         return self.settings.get("anthropic", {}).get("api_key", "")
 
-    def get_ai_optimization_tips(self, monitoring_data):
-        """Get AI-powered optimization tips based on monitoring data"""
-        if not self.api_key:
-            print(
-                f"{Fore.YELLOW}[!] AI optimization tips not available - Anthropic API key not configured{Style.RESET_ALL}"
-            )
-            print(
-                f"{Fore.YELLOW}[!] Add your API key to settings.yaml to enable AI-powered recommendations{Style.RESET_ALL}"
-            )
-            return None
+    def collect_monitoring_data(self):
+        """Collect monitoring data based on the configured level"""
+        print(
+            f"\n{Fore.CYAN}[*] Starting Level {self.monitoring_level} monitoring...{Style.RESET_ALL}"
+        )
 
-        try:
-            from src.ai.anthropic import AnthropicHandler
-
-            ai_handler = AnthropicHandler(api_key=self.api_key)
-
-            # Analyze the monitoring data
-            suggested_commands = ai_handler.analyze_report(monitoring_data)
-
-            if suggested_commands:
-                # Process commands interactively
-                approved_commands = ai_handler.process_commands_interactively(
-                    suggested_commands
-                )
-
-                # Execute approved commands
-                ai_handler.execute_approved_commands(approved_commands)
-
-                return {
-                    "suggested_commands": suggested_commands,
-                    "approved_commands": approved_commands,
-                }
-
-            return None
-
-        except Exception as e:
-            print(
-                f"{Fore.RED}[✗] Cannot get an AI report, please check your API key: {str(e)}{Style.RESET_ALL}"
-            )
-            return None
-
-    def collect_monitoring_data(self, enable_tables=False):
-        """Collect all monitoring data and return as a structured dictionary"""
         try:
             monitoring_data = {
-                "mysql_config": self.mysql_config,
-                "system_resources": self.system_monitor.get_system_resources(),
-                "mysql_processes": self.mysql_monitor.check_mysql_service(),
-                "mysql_stats": self.mysql_monitor.get_mysql_status(),
-                "query_cache_report": self.query_analyzer.analyze_query_cache(),
-                "innodb_metrics": self.performance_monitor.get_innodb_metrics(),
-                "slow_queries": self.performance_monitor.get_slow_queries(),
-                "performance_schema_metrics": self.performance_monitor.get_performance_schema_metrics(),
+                "timestamp": datetime.now(),
+                "monitoring_level": self.monitoring_level,
+                "ai_enabled": bool(self.ai_handler),
             }
 
-            if enable_tables:
-                table_stats = self.table_statistics.get_table_statistics()
-                monitoring_data["table_stats"] = table_stats
+            # Level 1: Basic Health Check
+            basic_data = self._collect_level_1()
+            monitoring_data.update(basic_data)
+
+            # Get AI insights for Level 1
+            if self.ai_handler:
+                monitoring_data["ai_analysis_basic"] = self._get_ai_insights(
+                    basic_data, "basic"
+                )
+
+            # Level 2: Standard Analysis
+            if self.monitoring_level >= 2:
+                standard_data = self._collect_level_2()
+                monitoring_data.update(standard_data)
+
+                if self.ai_handler:
+                    monitoring_data["ai_analysis_performance"] = self._get_ai_insights(
+                        standard_data, "performance"
+                    )
+
+            # Level 3: Deep Inspection
+            if self.monitoring_level == 3:
+                deep_data = self._collect_level_3()
+                monitoring_data.update(deep_data)
+
+                if self.ai_handler:
+                    monitoring_data["ai_analysis_deep"] = self._get_ai_insights(
+                        deep_data, "deep"
+                    )
 
             return monitoring_data
 
@@ -141,23 +146,69 @@ class SystemMySQLMonitor:
             )
             raise
 
+    def _get_ai_insights(self, data, analysis_type):
+        """Get AI insights based on the type of data being analyzed"""
+        try:
+            print(
+                f"{Fore.WHITE}[*] Getting AI insights for {analysis_type} analysis...{Style.RESET_ALL}"
+            )
+
+            if analysis_type == "basic":
+                return self.ai_handler.analyze_basic_health(data)
+            elif analysis_type == "performance":
+                return self.ai_handler.analyze_performance(data)
+            elif analysis_type == "deep":
+                return self.ai_handler.analyze_deep_metrics(data)
+
+        except Exception as e:
+            print(f"{Fore.RED}[✗] Error getting AI insights: {str(e)}{Style.RESET_ALL}")
+            return {"error": str(e)}
+
+    def _collect_level_1(self):
+        """Collect basic health metrics"""
+        return {
+            "system_basic": self.system_monitor.get_system_resources(),
+            "mysql_status": self.mysql_monitor.get_mysql_status(),
+        }
+
+    def _collect_level_2(self):
+        """Collect standard performance metrics"""
+        return {
+            "query_cache": self.query_analyzer.analyze_query_cache(),
+            "innodb_metrics": self.performance_monitor.get_innodb_metrics(),
+            "slow_queries": self.performance_monitor.get_slow_queries(),
+        }
+
+    def _collect_level_3(self):
+        """Collect deep inspection metrics"""
+        return {
+            "table_stats": self.table_statistics.get_table_statistics(),
+            "performance_schema": self.performance_monitor.get_performance_schema_metrics(),
+        }
+
     def generate_report(self, enable_tables=False):
-        """Generate and save monitoring report"""
-        print(f"\n{Fore.WHITE}[*] Generating report...{Style.RESET_ALL}")
+        """Generate monitoring report with AI insights"""
+        print(
+            f"\n{Fore.WHITE}[*] Generating Level {self.monitoring_level} Report with AI Analysis...{Style.RESET_ALL}"
+        )
 
         try:
-            # Collect all monitoring data
-            monitoring_data = self.collect_monitoring_data(enable_tables)
+            monitoring_data = self.collect_monitoring_data()
 
-            # Get AI optimization tips if available
-            optimization_tips = self.get_ai_optimization_tips(monitoring_data)
-            if optimization_tips:
-                monitoring_data["optimization_tips"] = optimization_tips
+            # Process and execute AI recommendations if available
+            if self.ai_handler and any(
+                key.startswith("ai_analysis_") for key in monitoring_data
+            ):
+                print(
+                    f"\n{Fore.CYAN}[*] Processing AI recommendations...{Style.RESET_ALL}"
+                )
+                self._process_ai_recommendations(monitoring_data)
 
-            # Save report using ReportHandler
             filename = self.report_handler.save_report(monitoring_data)
 
-            print(f"{Fore.GREEN}[✓] Report generated successfully{Style.RESET_ALL}")
+            print(
+                f"{Fore.GREEN}[✓] Report generated successfully: {filename}{Style.RESET_ALL}"
+            )
             return filename
 
         except Exception as e:
@@ -165,22 +216,46 @@ class SystemMySQLMonitor:
                 f"{Fore.RED}[✗] Error during report generation: {str(e)}{Style.RESET_ALL}"
             )
 
+    def _process_ai_recommendations(self, monitoring_data):
+        """Process and potentially execute AI recommendations"""
+        try:
+            all_recommendations = []
+            for key in monitoring_data:
+                if key.startswith("ai_analysis_"):
+                    if (
+                        isinstance(monitoring_data[key], dict)
+                        and "recommendations" in monitoring_data[key]
+                    ):
+                        all_recommendations.extend(
+                            monitoring_data[key]["recommendations"]
+                        )
 
-def get_size(bytes):
-    """Convert bytes to readable format"""
-    for unit in ["B", "KB", "MB", "GB"]:
-        if bytes < 1024:
-            return f"{bytes:.2f} {unit}"
-        bytes /= 1024
+            if all_recommendations:
+                approved_commands = self.ai_handler.process_commands_interactively(
+                    all_recommendations
+                )
+                if approved_commands:
+                    self.ai_handler.execute_approved_commands(approved_commands)
+                return approved_commands
+
+            return []
+
+        except Exception as e:
+            print(
+                f"{Fore.RED}[✗] Error processing AI recommendations: {str(e)}{Style.RESET_ALL}"
+            )
+            return []
 
 
 def parse_arguments(settings=None):
     """Handle command line arguments with fallback to settings.yaml"""
-    parser = argparse.ArgumentParser(description="System and MySQL Monitor")
+    parser = argparse.ArgumentParser(description="MAISQUELLE - MySQL Monitoring System")
 
-    # Get MySQL settings from yaml with defaults
+    # Get settings with defaults
     mysql_settings = settings.get("mysql", {}) if settings else {}
+    monitoring_settings = settings.get("monitoring", {}) if settings else {}
 
+    # MySQL connection arguments
     parser.add_argument(
         "--host",
         default=mysql_settings.get("host", "localhost"),
@@ -204,6 +279,16 @@ def parse_arguments(settings=None):
         default=mysql_settings.get("port", 3306),
         help=f"MySQL Port (default: {mysql_settings.get('port', 3306)})",
     )
+
+    # Monitoring level argument
+    parser.add_argument(
+        "--level",
+        type=int,
+        choices=[1, 2, 3],
+        default=monitoring_settings.get("level", 2),
+        help="Monitoring level: 1-Basic, 2-Advanced, 3-Expert (default: from settings.yaml or 2)",
+    )
+
     parser.add_argument(
         "--enable-tables",
         action="store_true",
@@ -217,14 +302,26 @@ def main():
     try:
         print_header()
         monitor = SystemMySQLMonitor()
-
         args = parse_arguments(monitor.settings)
 
+        # Update monitoring level from command line argument
+        monitor.monitoring_level = args.level
+
+        # Print monitoring level description
+        level_descriptions = {
+            1: "Basic health check and essential metrics",
+            2: "Advanced analysis with performance metrics",
+            3: "Expert level deep inspection and detailed analytics",
+        }
+
         print(
-            f"\n{Fore.CYAN}[*] Starting System and MySQL monitoring...{Style.RESET_ALL}"
+            f"\n{Fore.CYAN}[*] Starting System and MySQL monitoring (Level {args.level})...{Style.RESET_ALL}"
         )
         print(
-            f"{Fore.CYAN}[*] MySQL Connection: {args.host}:{args.port} with user {args.user}{Style.RESET_ALL}\n"
+            f"{Fore.CYAN}[*] MySQL Connection: {args.host}:{args.port} with user {args.user}{Style.RESET_ALL}"
+        )
+        print(
+            f"{Fore.CYAN}[*] Monitoring Level {args.level}: {level_descriptions[args.level]}{Style.RESET_ALL}\n"
         )
 
         monitor.mysql_config.update(
