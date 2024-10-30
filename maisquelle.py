@@ -10,6 +10,7 @@ try:
 except ImportError:
     YAML_AVAILABLE = False
 
+from src.utils.banner import print_header
 from src.monitor.mysql_monitor import MySQLMonitor
 from src.monitor.performance_monitor import PerformanceMonitor
 from src.monitor.query_analyzer import QueryAnalyzer
@@ -27,13 +28,13 @@ class SystemMySQLMonitor:
         self.api_key = self._get_api_key()
 
         # Get MySQL settings from yaml with defaults
-        mysql_settings = self.settings.get('mysql', {})
+        mysql_settings = self.settings.get("mysql", {})
 
         self.mysql_config = {
-            "host": host or mysql_settings.get('host', 'localhost'),
-            "user": user or mysql_settings.get('user', 'root'),
-            "password": password or mysql_settings.get('password', ''),
-            "port": port or mysql_settings.get('port', 3306)
+            "host": host or mysql_settings.get("host", "localhost"),
+            "user": user or mysql_settings.get("user", "root"),
+            "password": password or mysql_settings.get("password", ""),
+            "port": port or mysql_settings.get("port", 3306),
         }
 
         self.system_monitor = SystemMonitor()
@@ -54,7 +55,9 @@ class SystemMySQLMonitor:
 
             # If settings.yaml doesn't exist but example does
             if not settings_path.exists() and example_settings_path.exists():
-                print(f"{Fore.YELLOW}[!] settings.yaml not found, copying from settings.example.yaml{Style.RESET_ALL}")
+                print(
+                    f"{Fore.YELLOW}[!] settings.yaml not found, copying from settings.example.yaml{Style.RESET_ALL}"
+                )
                 # Copy example file to settings.yaml
                 settings_path.write_text(example_settings_path.read_text())
 
@@ -92,14 +95,16 @@ class SystemMySQLMonitor:
 
             if suggested_commands:
                 # Process commands interactively
-                approved_commands = ai_handler.process_commands_interactively(suggested_commands)
+                approved_commands = ai_handler.process_commands_interactively(
+                    suggested_commands
+                )
 
                 # Execute approved commands
                 ai_handler.execute_approved_commands(approved_commands)
 
                 return {
                     "suggested_commands": suggested_commands,
-                    "approved_commands": approved_commands
+                    "approved_commands": approved_commands,
                 }
 
             return None
@@ -174,33 +179,35 @@ def parse_arguments(settings=None):
     parser = argparse.ArgumentParser(description="System and MySQL Monitor")
 
     # Get MySQL settings from yaml with defaults
-    mysql_settings = settings.get('mysql', {}) if settings else {}
+    mysql_settings = settings.get("mysql", {}) if settings else {}
 
     parser.add_argument(
         "--host",
-        default=mysql_settings.get('host', 'localhost'),
-        help=f"MySQL Host (default: {mysql_settings.get('host', 'localhost')})"
+        default=mysql_settings.get("host", "localhost"),
+        help=f"MySQL Host (default: {mysql_settings.get('host', 'localhost')})",
     )
     parser.add_argument(
-        "-u", "--user",
-        default=mysql_settings.get('user', 'root'),
-        help=f"MySQL Username (default: {mysql_settings.get('user', 'root')})"
+        "-u",
+        "--user",
+        default=mysql_settings.get("user", "root"),
+        help=f"MySQL Username (default: {mysql_settings.get('user', 'root')})",
     )
     parser.add_argument(
-        "-p", "--password",
-        default=mysql_settings.get('password', ''),
-        help="MySQL Password (default: from settings.yaml or empty)"
+        "-p",
+        "--password",
+        default=mysql_settings.get("password", ""),
+        help="MySQL Password (default: from settings.yaml or empty)",
     )
     parser.add_argument(
         "--port",
         type=int,
-        default=mysql_settings.get('port', 3306),
-        help=f"MySQL Port (default: {mysql_settings.get('port', 3306)})"
+        default=mysql_settings.get("port", 3306),
+        help=f"MySQL Port (default: {mysql_settings.get('port', 3306)})",
     )
     parser.add_argument(
         "--enable-tables",
         action="store_true",
-        help="Enable collection of table statistics"
+        help="Enable collection of table statistics",
     )
 
     return parser.parse_args()
@@ -208,19 +215,26 @@ def parse_arguments(settings=None):
 
 def main():
     try:
+        print_header()
         monitor = SystemMySQLMonitor()
 
         args = parse_arguments(monitor.settings)
 
-        print(f"\n{Fore.CYAN}[*] Starting System and MySQL monitoring...{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}[*] MySQL Connection: {args.host}:{args.port} with user {args.user}{Style.RESET_ALL}\n")
+        print(
+            f"\n{Fore.CYAN}[*] Starting System and MySQL monitoring...{Style.RESET_ALL}"
+        )
+        print(
+            f"{Fore.CYAN}[*] MySQL Connection: {args.host}:{args.port} with user {args.user}{Style.RESET_ALL}\n"
+        )
 
-        monitor.mysql_config.update({
-            "host": args.host,
-            "user": args.user,
-            "password": args.password,
-            "port": args.port,
-        })
+        monitor.mysql_config.update(
+            {
+                "host": args.host,
+                "user": args.user,
+                "password": args.password,
+                "port": args.port,
+            }
+        )
 
         filename = monitor.generate_report(enable_tables=args.enable_tables)
         print(f"\n{Fore.GREEN}[✓] Report saved to: {filename}{Style.RESET_ALL}")
