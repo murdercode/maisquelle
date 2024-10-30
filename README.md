@@ -26,7 +26,7 @@ and healthy! 🎯
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/murdercode/mais-quelle.git
+   git clone https://github.com/murdercode/maisquelle.git
    cd maisquelle
    ```
 
