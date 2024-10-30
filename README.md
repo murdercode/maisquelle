@@ -7,6 +7,14 @@ and healthy! 🎯
 
 > ⚠️ WARNING: MaisQuelle is currently in an experimental phase and is NOT ready for production use!
 
+Inspired by the versatility of [MySQLTuner](https://github.com/major/MySQLTuner-perl) and its essential role in MySQL
+administration, MaisQuelle aims to bring that
+same level of utility to performance monitoring and optimization, enhanced with AI capabilities.
+
+<p align="center">
+<img src="https://github.com/murdercode/maisquelle/raw/HEAD/art/demo.gif" width="100%" 
+alt="MaisQuelle Animated Demo"></p>
+
 ## Why MaisQuelle? 🤔
 
 - 🧠 AI-Enhanced Analysis: Uses machine learning algorithms to provide intelligent insights and recommendations for your
